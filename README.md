@@ -1,0 +1,2 @@
+# TextAutoEncoder
+使用AutoEncoder架构，利用CNN作为特征抽取器实现对文本的Embedding

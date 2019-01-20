@@ -54,6 +54,7 @@ class RNNTextEmbedding(object):
             logits = tf.matmul(outputs, fcl_weights) + fcl_bias
             loss = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=tf.reshape(x, [-1]), logits=logits)
             mask = tf.sequence_mask(x_size, maxlen=cur_len, dtype=tf.float64)
+            mask = tf.reshape(mask, shape=[-1])
             cost = tf.reduce_sum(loss*mask) / tf.reduce_sum(mask)
             setattr(self, '_cost', cost)
 
@@ -80,7 +81,7 @@ class RNNTextEmbedding(object):
             return ws, size
 
         dataset = dataset.map(_parse_line)
-        dataset = dataset.filter(lambda x, size: tf.logical_and(tf.less_equal(size, 200), tf.greater_equal(size, 20)))
+        dataset = dataset.filter(lambda x, size: tf.logical_and(tf.less_equal(size, 100), tf.greater_equal(size, 20)))
         padded_shapes = (tf.TensorShape([None]), tf.TensorShape([]))
         dataset = dataset.padded_batch(batch_size, padded_shapes=padded_shapes)
         return dataset
@@ -124,7 +125,7 @@ if __name__ == '__main__':
     from gensim.models import KeyedVectors
     model = KeyedVectors.load_word2vec_format('./word_vecs.txt', binary=False)
     wv = model.vectors
-    nn = RNNTextEmbedding(50, wv, batch_size=10, hidden_size=60)
+    nn = RNNTextEmbedding(50, wv, batch_size=10, hidden_size=50)
     for steps, sess, x, cost, index in nn.fit('./index.txt'):
         xs = x[:3].tolist()
         res = index[:3]

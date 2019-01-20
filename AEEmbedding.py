@@ -100,7 +100,9 @@ class TextCNNAutoEncoder(object):
         loss = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=tf.reshape(x, [-1]), logits=res_sentence)
         seq_mask = tf.sequence_mask(size, maxlen=self._sentence_len, dtype=tf.float64)
         seq_mask = tf.reshape(seq_mask, shape=[-1])
-        loss = tf.reduce_mean(loss*seq_mask)
+        loss = tf.reduce_sum(loss*seq_mask)
+        loss = loss / tf.reduce_sum(seq_mask)
+
         res_sentence = tf.nn.softmax(res_sentence)
         res_index = tf.argmax(res_sentence, axis=1)
         res_index = tf.reshape(res_index, shape=(-1, self._sentence_len))
